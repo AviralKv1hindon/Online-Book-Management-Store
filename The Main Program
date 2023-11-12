@@ -1,0 +1,80 @@
+import streamlit as st
+
+class Bookstore:
+    def __init__(self):
+        self.books = {}   # master data
+
+    def save_data(self):
+        st.session_state.books = self.books
+
+    def display_books(self):
+        book_list = "Bookstore Inventory:\n"
+        for book_id, book_info in self.books.items(): 
+            book_list += f" ID: {book_id}, Title: {book_info['title']}, Author: {book_info['author']}, Price: {book_info['price']}, Quantity: {book_info['quantity']}\n"
+        return book_list
+
+    def add_book(self, title, author, price, quantity):
+        book_id = len(self.books) + 1
+        self.books[book_id] = {"title": title, "author": author, "price": price, "quantity": quantity}
+        return f"Book '{title}' added with ID {book_id}"
+
+    def update_book(self, book_id, title, author, price, quantity):
+        if book_id in self.books:
+            self.books[book_id] = {"title": title, "author": author, "price": price, "quantity": quantity}
+            return f"Book ID {book_id} updated successfully."
+        else:
+            return f"Book ID {book_id} not found."
+
+    def delete_book(self, book_id):
+        if book_id in self.books:
+            delete_title = self.books.pop(book_id)["title"]
+            return f"Book '{delete_title}' ID {book_id} deleted."
+        else:
+            return f"Book ID {book_id} not found."
+
+def main():
+    st.title("Online Book Management Store")
+    bookstore = Bookstore()
+
+    option = st.selectbox("Select an Option:", ["Display Books", "Add a Book", "Update a Book", "Delete a Book"])
+    if option == "Display Books":
+        st.subheader("Bookstore Inventory")
+        book_list = bookstore.display_books()
+        st.text(book_list)
+
+    elif option == "Add a Book":
+        st.subheader("Add a New Book")
+        title = st.text_input("Title:")
+        author = st.text_input("Author:")
+        price = st.number_input("Price:", min_value=10)
+        quantity = st.number_input("Quantity:", min_value=1)
+
+        if st.button("Add Book"):
+            result = bookstore.add_book(title, author, price, quantity)
+            st.success(result)
+            bookstore.save_data()
+
+    elif option == "Update a Book":
+        st.subheader("Update a Book")
+        book_id = st.number_input("Enter Book For Update", min_value=1, step=1)
+        title = st.text_input("Title:")
+        author = st.text_input("Author:")
+        price = st.number_input("Price:", min_value=10)
+        quantity = st.number_input("Quantity:", min_value=1, step=1)
+
+        if st.button("Update Book"):
+            result = bookstore.update_book(book_id, title, author, price, quantity)
+            st.success(result)
+            bookstore.save_data()
+
+    elif option == "Delete a Book":
+        st.subheader("Delete a Book")
+        book_id = st.number_input("Enter Book ID For Delete", min_value=1)
+
+        if st.button("Delete Book"):
+            result = bookstore.delete_book(book_id)
+            st.success(result)
+            bookstore.save_data()
+
+if __name__ == "__main__":
+    main()
